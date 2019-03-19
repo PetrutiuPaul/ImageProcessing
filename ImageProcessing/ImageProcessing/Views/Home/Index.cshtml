@@ -1,0 +1,39 @@
+﻿@model ImageProcessing.Models.FileUploadModel
+
+@using (Html.BeginForm("UploadFiles", "Home", FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+        <hr />
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <div class="form-group">
+            @Html.LabelFor(model => model.File, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.File, new { htmlAttributes = new { @class = "form-control", @type = "file" } })
+                @Html.ValidationMessageFor(model => model.File, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Upload" class="btn btn-primary" />
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10 text-success">
+                @ViewBag.FileStatus
+            </div>
+        </div>
+        
+        
+        <div>
+            <div>
+                <img style="margin-right: 2%; width: 49%" src="@("../../UploadedFiles/"+ ViewBag.Current)" alt="Current"/>
+            </div>
+            <div>
+                <img style="width: 49%"src="@("../../UploadedFiles/"+ ViewBag.Result)"alt="Result"/>
+            </div>
+        </div>
+    </div>
+}
