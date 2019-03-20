@@ -26,7 +26,14 @@
             </div>
         </div>
         
+        <p>
+            @Html.ActionLink("Black and White", "ImageToBlack") --
+            @Html.ActionLink("Negative", "Negative") --
+            @Html.ActionLink("Move", "Move") --
+
+        </p>
         
+
         <div style="display: inline-flex; width: 100%">
             <div style="margin-right: 2%; width: 49%">
                 <img style="width: 100%" src="@("../../UploadedFiles/"+ ViewBag.Current)" alt="Current"/>
@@ -35,5 +42,7 @@
                 <img style="width: 100%" src="@("../../UploadedFiles/"+ ViewBag.Result)"alt="Result"/>
             </div>
         </div>
+        
+
     </div>
 }

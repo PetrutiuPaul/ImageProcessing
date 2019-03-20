@@ -112,6 +112,29 @@ namespace ImageProcessing.Controllers
             return RedirectToAction("Index");
         }
 
+        public ActionResult Negative()
+        {
+            foreach (var file in Directory.GetFiles(Server.MapPath("~/UploadedFiles")))
+            {
+                if (!file.Contains("current")) continue;
+                using (var bitmap = new Bitmap(file))
+                {
+                    for (var i = 0; i < bitmap.Width; i++)
+                    {
+                        for (var j = 0; j < bitmap.Height; j++)
+                        {
+                            var pixel = bitmap.GetPixel(i, j);
+
+                            bitmap.SetPixel(i, j, Color.FromArgb(255, 255 - pixel.R, 255 - pixel.G, 255 - pixel.B));
+                        }
+                    }
+                    bitmap.Save(Server.MapPath($"~/UploadedFiles/result-{DateTime.Now.Ticks}" + Path.GetExtension(file)));
+                }
+            }
+
+            return RedirectToAction("Index");
+        }
+
 
         public ActionResult About()
         {
