@@ -135,6 +135,41 @@ namespace ImageProcessing.Controllers
             return RedirectToAction("Index");
         }
 
+        public ActionResult Contrast()
+        {
+            var contrast = Math.Pow((100.0 + 30) / 100.0, 2);
+            
+            foreach (var file in Directory.GetFiles(Server.MapPath("~/UploadedFiles")))
+            {
+                if (!file.Contains("current")) continue;
+                using (var bitmap = new Bitmap(file))
+                {
+                    for (var i = 0; i < bitmap.Width; i++)
+                    {
+                        for (var j = 0; j < bitmap.Height; j++)
+                        {
+                            var oldColor = bitmap.GetPixel(i, j);
+                            var red = ((((oldColor.R / 255.0) - 0.5) * contrast) + 0.5) * 255.0;
+                            var green = ((((oldColor.G / 255.0) - 0.5) * contrast) + 0.5) * 255.0;
+                            var blue = ((((oldColor.B / 255.0) - 0.5) * contrast) + 0.5) * 255.0;
+                            if (red > 255) red = 255;
+                            if (red < 0) red = 0;
+                            if (green > 255) green = 255;
+                            if (green < 0) green = 0;
+                            if (blue > 255) blue = 255;
+                            if (blue < 0) blue = 0;
+
+                            var newColor = Color.FromArgb(oldColor.A, (int)red, (int)green, (int)blue);
+                            bitmap.SetPixel(i,j,newColor);
+                        }
+                    }
+                    bitmap.Save(Server.MapPath($"~/UploadedFiles/result-{DateTime.Now.Ticks}" + Path.GetExtension(file)));
+                }
+            }
+
+            return RedirectToAction("Index");
+        }
+
 
         public ActionResult About()
         {
