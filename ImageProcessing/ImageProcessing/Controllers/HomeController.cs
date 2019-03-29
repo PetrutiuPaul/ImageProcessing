@@ -81,6 +81,146 @@ namespace ImageProcessing.Controllers
             return RedirectToAction("Index");
         }
 
+        public ActionResult ImageMediation()
+        {
+            foreach (var file in Directory.GetFiles(Server.MapPath("~/UploadedFiles")))
+            {
+                if (!file.Contains("current")) continue;
+                using (var bitmap = new Bitmap(file))
+                {
+                    using (var bitmap2 = new Bitmap(file))
+                    {
+                        
+                    for (var i = 1; i < bitmap.Width -1; i++)
+                    {
+                        for (var j = 1; j < bitmap.Height-1; j++)
+                        {
+                            bitmap2.SetPixel(i, j, MidColor(bitmap,i,j));
+                        }
+                    }
+                    bitmap2.Save(Server.MapPath($"~/UploadedFiles/result-{DateTime.Now.Ticks}" + Path.GetExtension(file)));
+                    }
+                }
+            }
+
+            return RedirectToAction("Index");
+        }
+
+        public ActionResult FilterUp()
+        {
+            foreach (var file in Directory.GetFiles(Server.MapPath("~/UploadedFiles")))
+            {
+                if (!file.Contains("current")) continue;
+                using (var bitmap = new Bitmap(file))
+                {
+                    using (var bitmap2 = new Bitmap(file))
+                    {
+                        
+                    for (var i = 1; i < bitmap.Width - 1; i++)
+                    {
+                        for (var j = 1; j < bitmap.Height - 1; j++)
+                        {
+                            bitmap2.SetPixel(i, j, UpColor(bitmap, i, j));
+                        }
+                    }
+                    bitmap2.Save(Server.MapPath($"~/UploadedFiles/result-{DateTime.Now.Ticks}" + Path.GetExtension(file)));
+                    }
+                }
+            }
+
+            return RedirectToAction("Index");
+        }
+
+
+        public ActionResult BiomedFilter()
+        {
+            foreach (var file in Directory.GetFiles(Server.MapPath("~/UploadedFiles")))
+            {
+                if (!file.Contains("current")) continue;
+                using (var bitmap = new Bitmap(file))
+                {
+                    using (var bitmap2 = new Bitmap(file))
+                    {        
+                        for (var i = 1; i < bitmap.Width - 1; i++)
+                        {
+                            for (var j = 1; j < bitmap.Height - 1; j++)
+                            {
+                                bitmap2.SetPixel(i, j, BiomedColor(bitmap, i, j));
+                            }
+                        }
+                        bitmap2.Save(Server.MapPath($"~/UploadedFiles/result-{DateTime.Now.Ticks}" + Path.GetExtension(file)));
+                    }
+                }
+            }
+
+            return RedirectToAction("Index");
+        }
+
+        private static Color MidColor(Bitmap bitmap, int i, int j)
+        {
+            var r = 0;
+            var g = 0;
+            var b = 0;
+
+            for (var ii = -1; ii <= 1; ii++)
+            {
+                for (var jj = -1; jj <= 1; jj++)
+                {
+                    r += bitmap.GetPixel(i + ii, j + jj).R;
+                    g += bitmap.GetPixel(i + ii, j + jj).G;
+                    b += bitmap.GetPixel(i + ii, j + jj).B;
+                }
+            }
+
+            return Color.FromArgb(r / 9, g / 9, b / 9);
+        }
+
+        private static Color UpColor(Bitmap bitmap, int i, int j)
+        {
+            var pixel = bitmap.GetPixel(i, j);
+            var r = 0;
+            var g = 0;
+            var b = 0;
+
+            for (var ii = -1; ii <= 1; ii++)
+            {
+                for (var jj = -1; jj <= 1; jj++)
+                {
+                    r += bitmap.GetPixel(i + ii, j + jj).R;
+                    g += bitmap.GetPixel(i + ii, j + jj).G;
+                    b += bitmap.GetPixel(i + ii, j + jj).B;
+                }
+            }
+
+            return Color.FromArgb(pixel.R - (r / 9) < 0 ? 0 : pixel.R - (r / 9) > 255 ? 255 : pixel.R - (r / 9),
+                                pixel.G - (g / 9) < 0 ? 0 : pixel.G - (g / 9) > 255 ? 255 : pixel.G - (g / 9),
+                                pixel.B - (b / 9) < 0 ? 0 : pixel.B - (b / 9) > 255 ? 255 : pixel.B - (b / 9));
+        }
+
+        private static Color BiomedColor(Bitmap bitmap, int i, int j)
+        {
+            var pixel = bitmap.GetPixel(i, j);
+            var r = 0;
+            var g = 0;
+            var b = 0;
+
+            for (var ii = -1; ii <= 1; ii++)
+            {
+                for (var jj = -1; jj <= 1; jj++)
+                {
+                    r += bitmap.GetPixel(i + ii, j + jj).R;
+                    g += bitmap.GetPixel(i + ii, j + jj).G;
+                    b += bitmap.GetPixel(i + ii, j + jj).B;
+                }
+            }
+
+
+            return Color.FromArgb(-r + 10 * pixel.R < 0 ? 0 : -r + 10 * pixel.R > 255 ? 255 : -r + 10 * pixel.R,
+                -g + 10 * pixel.G < 0 ? 0 : -g + 10 * pixel.G > 255 ? 255 : -g + 10 * pixel.G,
+                -b + 10 * pixel.B < 0 ? 0 : -b + 10 * pixel.B > 255 ? 255 : -b + 10 * pixel.B);
+            
+        }
+
         public ActionResult Move()
         {
             string current = string.Empty;
