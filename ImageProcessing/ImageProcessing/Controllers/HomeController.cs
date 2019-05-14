@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -187,6 +188,22 @@ namespace ImageProcessing.Controllers
             return RedirectToAction("Index");
         }
 
+        public ActionResult Scheletonizare()
+        {
+            foreach (var file in Directory.GetFiles(Server.MapPath("~/UploadedFiles")))
+            {
+                if (!file.Contains("current")) continue;
+                using (var bitmap = new Bitmap(file))
+                {
+                    var bitmap2 = Scheletonizare(bitmap, file);
+                    bitmap2.Save(
+                        Server.MapPath($"~/UploadedFiles/result-{DateTime.Now.Ticks}" + Path.GetExtension(file)));
+                }
+            }
+
+            return RedirectToAction("Index");
+        }
+
         public ActionResult Subtiere()
         {
             foreach (var file in Directory.GetFiles(Server.MapPath("~/UploadedFiles")))
@@ -261,6 +278,74 @@ namespace ImageProcessing.Controllers
             }
 
             return Color.Black;
+        }
+
+        private static Bitmap Scheletonizare(Bitmap bitmap, string file)
+        {
+            var bitmap2 = new Bitmap(bitmap);
+
+            int[][] Matrix = new int[bitmap.Width +1][];
+            int[][] Matrix2 = new int[bitmap.Width +1][];
+
+            for (int i = 0; i < bitmap.Width; i++)
+            {
+                Matrix[i] = new int[bitmap.Height + 1];
+                Matrix2[i] = new int[bitmap.Height + 1];
+            }
+
+
+            for (var i = 0; i < bitmap.Width; i++)
+            {
+                for (var j = 0; j < bitmap.Height; j++)
+                {
+                    if (bitmap.GetPixel(i, j).Name.Contains("ff000000"))
+                    {
+                        Matrix[i][j] = 1;
+                        Matrix2[i][j] = 1;
+                    }
+                    else
+                    {
+                        Matrix[i][j] = 0;
+                        Matrix2[i][j] = 0;
+                    }
+
+                }
+            }
+
+            for (var step = 0; step < bitmap.Width; step++)
+            {
+                for (var i = 1; i < bitmap.Width - 1; i++)
+                {
+                    for (var j = 1; j < bitmap.Height - 1; j++)
+                    {
+                        var nr = 0;
+                        if (bitmap.GetPixel(i, j).Name.Contains("ff000000"))
+                            nr = 1;
+                        Matrix2[i][j] = nr + Math.Min(Math.Min(Matrix[i - 1][j], Matrix[i][j - 1]),
+                                            Math.Min(Matrix[i + 1][j], Matrix[i + 1][j]));
+                    }
+                }
+
+                for (var i = 1; i < bitmap.Width - 1; i++)
+                {
+                    for (var j = 1; j < bitmap.Height - 1; j++)
+                    {
+                        Matrix[i][j] = Matrix2[i][j];
+                    }
+                }
+            }
+            
+            for (var i = 1; i < bitmap.Width - 1; i++)
+            {
+                for (var j = 1; j < bitmap.Height - 1; j++)
+                {
+                    if (Matrix[i][j] != 0) 
+                    bitmap2.SetPixel(i, j, Matrix[i][j] >= Math.Max(Math.Max(Matrix[i -1][j], Matrix[i][j -1 ]),Math.Max(Matrix[i+1][j], Matrix[i][j+1])) ? Color.Black : Color.White);
+                }
+            }
+
+
+            return bitmap2;
         }
 
 
